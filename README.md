@@ -1,21 +1,20 @@
-# User Registration API Documentation
+# User Registration & Login API Documentation
 
-## Endpoint
+## Endpoints
 
-**POST** `/users/register`
+- **POST** `/users/register` — Register a new user  
+- **POST** `/users/login` — Login with email and password
 
 ---
 
-## Description
+## /users/register
+
+### Description
 
 Register a new user by providing their full name, email, and password.  
 The backend validates all fields and returns a JWT token on successful registration.
 
----
-
-## Request Body
-
-Send a JSON object in this format:
+### Request Body
 
 ```json
 {
@@ -37,11 +36,9 @@ Send a JSON object in this format:
 | email                   | String | Yes      | Must be a valid email address              |
 | password                | String | Yes      | Minimum 6 characters                       |
 
----
+### Responses
 
-## Responses
-
-### Success
+#### Success
 
 - **Status Code:** `201 Created`
 - **Body:**
@@ -60,7 +57,7 @@ Send a JSON object in this format:
     }
     ```
 
-### Validation Error
+#### Validation Error
 
 - **Status Code:** `400 Bad Request`
 - **Body:**
@@ -76,7 +73,7 @@ Send a JSON object in this format:
     }
     ```
 
-### Server Error
+#### Server Error
 
 - **Status Code:** `500 Internal Server Error`
 - **Body:**
@@ -88,13 +85,94 @@ Send a JSON object in this format:
 
 ---
 
-## Example Request (using curl)
+## /users/login
+
+### Description
+
+Login an existing user using email and password.  
+Returns a JWT token and user details on successful authentication.
+
+### Request Body
+
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "yourpassword"
+}
+```
+
+### Field Requirements
+
+| Field    | Type   | Required | Validation                      |
+|----------|--------|----------|---------------------------------|
+| email    | String | Yes      | Must be a valid email address   |
+| password | String | Yes      | Minimum 6 characters            |
+
+### Responses
+
+#### Success
+
+- **Status Code:** `200 OK`
+- **Body:**
+    ```json
+    {
+      "token": "<JWT_TOKEN>",
+      "user": {
+        "_id": "user_id",
+        "fullname": {
+          "firstname": "John",
+          "lastname": "Doe"
+        },
+        "email": "john.doe@example.com"
+        // ...other fields
+      }
+    }
+    ```
+
+#### Invalid Credentials
+
+- **Status Code:** `401 Unauthorized`
+- **Body:**
+    ```json
+    {
+      "message": "Invalid email or password"
+    }
+    ```
+
+#### Validation Error
+
+- **Status Code:** `400 Bad Request`
+- **Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Error message",
+          "param": "field",
+          "location": "body"
+        }
+      ]
+    }
+    ```
+
+#### Server Error
+
+- **Status Code:** `500 Internal Server Error`
+- **Body:**
+    ```json
+    {
+      "error": "Error message"
+    }
+    ```
+
+---
+
+## Example Login Request (using curl)
 
 ```sh
-curl -X POST http://localhost:3000/users/register \
+curl -X POST http://localhost:3000/users/login \
 -H "Content-Type: application/json" \
 -d '{
-  "fullname": { "firstname": "John", "lastname": "Doe" },
   "email": "john.doe@example.com",
   "password": "yourpassword"
 }'

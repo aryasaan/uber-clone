@@ -215,6 +215,11 @@ Requires a valid JWT token (sent as a cookie or in the `Authorization` header).
 Logs out the current user by blacklisting their JWT token.  
 After logout, the token cannot be used for authentication anymore.
 
+### Route
+
+**GET** `/users/logout`  
+_(Requires authentication; send token as cookie or Authorization header)_
+
 ### How it works
 
 - The current JWT token is added to the `blacklistToken` collection in the database.

@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 const connectDB = require('./db/db');
 const userRoutes = require('./routers/user.router');
+const captainRoutes = require('./routers/captain.router');
 dotenv.config();
 
 const app = express();
@@ -20,6 +21,7 @@ app.get('/', (req, res) =>{
 })
 
 app.use('/users', userRoutes);
+app.use('/captains',captainRoutes);
 
 
 

@@ -13,6 +13,11 @@ const { validationResult } = require('express-validator');
 
     const {fullname, email, password} = req.body;
 
+    const existingUser = await usermodel.findOne({email});
+    if(existingUser) {
+        return res.status(400).json({message: 'User with this email already exists'});
+    }   
+
     const hashedPassword = await usermodel.haspassword(password);
     const newUser = await userService.createUser({
         fullname:{

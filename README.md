@@ -10,6 +10,9 @@
 
 ### Captain Endpoints
 - **POST** `/captains/register` — Register a new captain
+- **POST** `/captains/login` — Login with email and password
+- **GET** `/captains/profile` — Get logged-in captain's profile (requires authentication)
+- **GET** `/captains/logout` — Logout captain and blacklist current token
 
 ---
 
@@ -469,6 +472,175 @@ curl -X POST http://localhost:3000/captains/register \
     }
   }'
 ```
+
+---
+
+## Captain Login
+
+## /captains/login
+
+### Description
+
+Login an existing captain using email and password.  
+Returns a JWT token and captain details on successful authentication.
+
+### Request Body
+
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "yourpassword"
+}
+```
+
+### Field Requirements
+
+| Field    | Type   | Required | Validation                    |
+| -------- | ------ | -------- | ----------------------------- |
+| email    | String | Yes      | Must be a valid email address |
+| password | String | Yes      | Minimum 6 characters          |
+
+### Responses
+
+#### Success
+
+- **Status Code:** `200 OK`
+- **Body:**
+  ```json
+  {
+    "token": "<JWT_TOKEN>",
+    "captain": {
+      "_id": "captain_id",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john.doe@example.com",
+      // ...other fields
+    }
+  }
+  ```
+
+#### Invalid Credentials
+
+- **Status Code:** `400 Bad Request`
+- **Body:**
+  ```json
+  {
+    "message": "Captain with this email does not exist" // or "Invalid password"
+  }
+  ```
+
+#### Validation Error
+
+- **Status Code:** `400 Bad Request`
+- **Body:**
+  ```json
+  {
+    "errors": [
+      {
+        "msg": "Error message",
+        "param": "field",
+        "location": "body"
+      }
+    ]
+  }
+  ```
+
+#### Server Error
+
+- **Status Code:** `500 Internal Server Error`
+- **Body:**
+  ```json
+  {
+    "error": "Error message"
+  }
+  ```
+
+---
+
+## Captain Profile
+
+## /captains/profile
+
+### Description
+
+Get the profile of the currently authenticated captain.  
+Requires a valid JWT token (sent as a cookie or in the `Authorization` header).
+
+### Responses
+
+#### Success
+
+- **Status Code:** `200 OK`
+- **Body:**
+  ```json
+  {
+    "captain": {
+      "_id": "captain_id",
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "john.doe@example.com"
+      // ...other fields
+    }
+  }
+  ```
+
+#### Unauthorized
+
+- **Status Code:** `401 Unauthorized`
+- **Body:**
+  ```json
+  {
+    "message": "Unauthorized access, please login first"
+  }
+  ```
+
+---
+
+## Captain Logout
+
+## /captains/logout
+
+### Description
+
+Logs out the current captain by blacklisting their JWT token.  
+After logout, the token cannot be used for authentication anymore.
+
+### Route
+
+**GET** `/captains/logout`  
+_(Requires authentication; send token as cookie or Authorization header)_
+
+### How it works
+
+- The current JWT token is added to the `blacklistToken` collection in the database.
+- The token is set to expire automatically after **1 day** (24 hours) using MongoDB's TTL index.
+- The `token` cookie is cleared from the client.
+
+### Responses
+
+#### Success
+
+- **Status Code:** `200 OK`
+- **Body:**
+  ```json
+  {
+    "message": "Logged out successfully"
+  }
+  ```
+
+#### Unauthorized
+
+- **Status Code:** `401 Unauthorized`
+- **Body:**
+  ```json
+  {
+    "message": "Unauthorized access, please login first"
+  }
+  ```
 
 ---
 
